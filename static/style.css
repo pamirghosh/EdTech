@@ -1,0 +1,7 @@
+.hide-prop{
+  display: none;
+}
+.show-prop {
+  display: block;
+  color: red;
+}

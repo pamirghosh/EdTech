@@ -48,32 +48,41 @@
                 <input
                   type="text"
                   aria-label="First name"
+                  id="fname"
                   class="form-control"
                 />
+                
                 <input
                   type="text"
                   aria-label="Last name"
+                  id="lname"
                   class="form-control"
                 />
+                
+              </div>
+              <div>
+              <p class="hide-prop">First and last name can not be blank.</p>
               </div>
               <div class="mb-3">
                 <input
                   type="email"
-                  class="form-control"
+                  class="form-control email"
                   id="exampleFormControlInput1"
                   placeholder="name@example.com"
                 />
               </div>
+              <p class="hide-prop">Email can not be blank.</p>
               <div class="mb-3">
                 <textarea
-                  class="form-control"
+                  class="form-control msg"
                   id="exampleFormControlTextarea1"
                   rows="3"
-                  placeholder="Message"
+                  placeholder="Type your message..."
                 ></textarea>
               </div>
+              <p class="hide-prop">Message can not bbe blank.</p>
               <div class="contact-btn mb-3">
-                <button type="button" class="btn btn-warning px-5">
+                <button type="button" class="btn btn-warning px-5" id="sendbtn">
                   <span class="fst-italic">Send</span>
                 </button>
               </div>
