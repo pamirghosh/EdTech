@@ -23,7 +23,7 @@ engine = create_engine(
     echo=False
 )
 
-def insert(fname, lname, email, msg):
+def insert_user_query(fname, lname, email, msg):
   with engine.connect() as conn:
         query = text(f"INSERT INTO user_queries (fname, lname, email, message) VALUES (:fname, :lname, :email, :msg)")
         conn.execute(query, {"fname": fname, "lname":lname, "email": email, "msg": msg})
