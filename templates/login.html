@@ -5,10 +5,11 @@
       <div class="col-md-6 col-lg-6 container border border-warning w-50 m-4 p-5 mx-auto bg-white rounded-2">
         <h3 class="mb-4 text-center">LogIn</h3>
         <form>
+          <p class="login-msg"></p>
           <div class="mb-3">
             <input
               type="email"
-              class="form-control"
+              class="form-control mail"
               id="exampleInputEmail1"
               aria-describedby="emailHelp"
               placeholder="Enter your email"
@@ -20,12 +21,12 @@
           <div class="mb-3">
             <input
               type="password"
-              class="form-control"
+              class="form-control pass"
               id="exampleInputPassword1"
               placeholder="Enter your password"
             />
           </div>
-          <button type="submit" class="btn btn-warning px-5">Login</button>
+          <button type="button" class="btn btn-warning px-5" id="loginbtn">Login</button>
           <div id="passwordHelpBlock" class="form-text">
   New User? <span><a href="#">Sign Up</a></span>.
 </div>
