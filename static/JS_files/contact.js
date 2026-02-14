@@ -20,13 +20,20 @@ btn.addEventListener('click',(e)=>{
       },
       body: JSON.stringify(data)
     }).then((response)=>{
-      if(!response)
+      console.log(response)
+      if(!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
       return response.json();
     }).then((data)=>{
+      const m=document.querySelector(".hide-notice");
+      m.classList.remove("hide-notice");
+      m.classList.add("show-notice");
       console.log(data)
     }).catch((error)=>{
-      console.error('Error:', error); 
+      const m=document.querySelector(".hide-notice");
+      m.classList.remove("hide-notice");
+      m.classList.add("error-notice");
+      m.textContent=error.message
     });
   }
 })

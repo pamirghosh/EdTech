@@ -16,12 +16,22 @@ def courses():
 
 @app.route("/contact", methods=["POST"])
 def contact():
-    data=request.get_json()
-    fname = data.get("fname")
-    lname = data.get("lname")
-    email = data.get("email")
-    msg = data.get("message")
-    print(fname, lname, email, msg)
-    return jsonify("Hello world")
+    try:
+        data=request.get_json()
+        if not data:
+            return jsonify({"error": "Invalid JSON data"}),400
+
+        fname = data.get("fname")
+        lname = data.get("lname")
+        email = data.get("email")
+        msg = data.get("message")
+        if not fname or not lname or not email or not msg:
+            return jsonify({"message": "All fields are required"}),400
+        db.insert_user_query(fname,lname,email,msg)
+        return jsonify({"message": "Message sent successfully."}),201
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({"error": "Internal Server Error"}), 500
+
 if __name__=="__main__":
     app.run(debug=True)

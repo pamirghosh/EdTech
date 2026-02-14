@@ -5,3 +5,14 @@
   display: block;
   color: red;
 }
+.hide-notice{
+  display: none;
+}
+.show-notice{
+  display: block;
+  color: green;
+}
+.error-notice{
+  display: block;
+  color: red;
+}
