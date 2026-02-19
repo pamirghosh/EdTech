@@ -60,8 +60,9 @@ def authenticate():
 
 @app.route("/our-courses")
 def courses():
-    courses=db.fectCourses()
-    return render_template("courses.html", courses=courses)
+    session_id=request.cookies.get("session_id")
+    courses=db.fetchCourses()
+    return render_template("courses.html", courses=courses, session_id=session_id)
 
 @app.route("/contact", methods=["POST"])
 def contact():
@@ -81,6 +82,21 @@ def contact():
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": "Internal Server Error"}), 500
+
+@app.route("/course-details/<int:course_id>")
+def course_details(course_id):
+    try:
+        session_id=request.cookies.get("session_id")
+        if session_id:
+
+            course_data=db.fetchCourses(course_id)
+            return render_template("course-details.html", session_id=session_id, course_data=course_data[0])
+        else:
+            return render_template('login.html')
+        
+    except Exception as e:
+        print("Error: ", e)
+    
 
 if __name__=="__main__":
     app.run(debug=True)

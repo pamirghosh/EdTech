@@ -53,8 +53,11 @@ def delete_session(session_id):
         conn.execute(query, {"session_id":session_id})
         conn.commit()
 
-def fectCourses():
+def fetchCourses(courseid=None):
     with engine.connect() as conn:
-        res = conn.execute(text("SELECT * FROM courses"),{})
+        if courseid:
+            res = conn.execute(text("SELECT * FROM courses WHERE id=:courseid"),{"courseid":courseid})
+        else:    
+            res = conn.execute(text("SELECT * FROM courses"),{})
         rows = res.mappings().all()
         return rows
