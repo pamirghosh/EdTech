@@ -1,0 +1,35 @@
+{% extends "base.html" %} {% block content %}
+<div class="container border border-primary my-4 w-75">
+  <div class="row">
+    <div class="products col-8">
+      {% for product in data %}
+      <div class="product">
+        <div class="row py-3">
+          <div class="col-6 border border-denger">
+            <img
+              src="/static/images/{{product['image']}}"
+              class="img-fluid"
+              alt=""
+            />
+          </div>
+          <div class="col-6 border border-denger text-center">
+            <h3>{{product['title']}}</h3>
+            <p>{{product['details']}}</p>
+            <p>Price: {{product['price']}}</p>
+            <button type="submit" class="btn btn-warning px-5">Remove</button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="subtotal col-4 border border-danger">
+      <div class="pricing border border warning w-75 text-center mx-auto py-5">
+        <h3>Subtotal({{count}} item)</h3>
+        <h5>Price: ₹{{total_price}}<h5>
+        <button type="submit" class="btn btn-warning ">Proceed to Buy</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

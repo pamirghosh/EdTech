@@ -61,3 +61,28 @@ def fetchCourses(courseid=None):
             res = conn.execute(text("SELECT * FROM courses"),{})
         rows = res.mappings().all()
         return rows
+
+# fetch and add course to cart table
+def cart(userid, courseid=None, insert=None):
+    with engine.connect() as conn:
+        if courseid!=None:
+            if insert==None:
+                res = conn.execute(text("SELECT * FROM user_cart WHERE uid=:userid AND cid=:courseid"),{"userid":userid, "courseid":courseid})
+                row = res.mappings().all()
+                return row
+            else:
+                query = text(f"INSERT INTO user_cart (cid,uid,qty) VALUES (:courseid, :userid, :qty)")
+                conn.execute(query, {"courseid": courseid, "userid":userid, "qty": 0})
+                conn.commit()
+        else:
+            print('aaa')
+            res = conn.execute(text("SELECT courses.id, courses.title , courses.details, courses.image, courses.price FROM courses,user_cart WHERE courses.id=user_cart.cid and user_cart.uid=:userid"),{"userid":userid})
+            row = res.mappings().all()
+            return row
+
+#fetch user id
+def fetch_user(session_id):
+    with engine.connect() as conn:
+        res = conn.execute(text("SELECT * FROM sessions WHERE session_id=:session_id"),{"session_id":session_id})
+        row = res.mappings().first()
+        return row

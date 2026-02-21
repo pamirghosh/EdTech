@@ -19,8 +19,11 @@
         <p><input type="text" readonly class="form-control-plaintext" id="staticEmail" value="{{course_data['level']}}"></p>
         <p><input type="text" readonly class="form-control-plaintext" id="staticEmail" value="{{course_data['instructor_name']}}">Instructor name: </p>
         <p><span>Price:<input type="text" readonly class="form-control-plaintext" id="staticEmail" value="{{course_data['price']}}">Rs.</span></p>
-        <button type="button" class="btn btn-warning px-5 mb-2">Buy</button>
-        <button type="button" class="btn btn-warning px-5 mb-2">Cart</button>
+        <form action="{{url_for('course_op')}}" method="post">
+        <input type="hidden" readonly class="form-control-plaintext" name ="cid" id="staticEmail" value="{{course_data['id']}}">
+        <button type="submit" class="btn btn-warning px-5 mb-2" name="action" value="buy">Buy</button>
+        <button type="submit" class="btn btn-warning px-5 mb-2" name="action" value="cart">Cart</button>
+        </form>
       </div>
     </div>
 

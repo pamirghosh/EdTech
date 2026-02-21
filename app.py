@@ -48,7 +48,7 @@ def authenticate():
                 "session_id",
                 session_id,
                 httponly=True,
-                secure=True,
+                secure=False,
                 samesite="Lax"
             )
             return response
@@ -96,7 +96,48 @@ def course_details(course_id):
         
     except Exception as e:
         print("Error: ", e)
-    
+def isExist(uid, cid):
+    exist=db.cart(uid, cid)
+    if len(exist)!=0:
+        return True
+    return False
+@app.route("/course_op", methods=['POST']) 
+def course_op():
+    try:
+        session_id=request.cookies.get("session_id")
+        if session_id:
+            data=request.form.to_dict()
+            res=db.fetch_user(session_id)
+            data['uid']=res['user_id']
+            print (isExist(data['uid'], data['cid']))
+            if isExist(data['uid'], data['cid']):
+                return "already in cart"
+            else:
+                db.cart(data['uid'], data['cid'],1)
+                return redirect(url_for('cart'))
+        else:
+            return render_template('login.html')
+    except Exception as e:
+        print("Error: ", e)
+
+@app.route("/cart")
+def cart():
+    try:
+        session_id=request.cookies.get("session_id")
+        if session_id:
+            user=db.fetch_user(session_id)
+            data=db.cart(user['user_id'])
+            total_price=0
+            count=0
+            for i in data:
+                total_price=total_price+i['price']
+                count+=1
+            print(total_price)
+            return render_template('cart.html', data=data, total_price=total_price,count=count)
+        else:
+            render_template('login.html')
+    except Exception as e:
+        print("Error: ",e)
 
 if __name__=="__main__":
     app.run(debug=True)
