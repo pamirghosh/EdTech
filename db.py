@@ -21,8 +21,8 @@ engine = create_engine(
         },
         "connect_timeout": 5
     },
-    pool_size=2,          # 🔥 reduce
-    max_overflow=1,       # 🔥 reduce
+    pool_size=2,          
+    max_overflow=1,       
     pool_timeout=10,
     pool_recycle=280,
     pool_pre_ping=True,
@@ -104,6 +104,7 @@ def order(user_id=None, order_id=None, amount=None, payment_id=None):
                 "amount": amount,
                 "status": "pending"
             })
+            conn.commit() 
         else:
             query = text("UPDATE orders SET razorpay_payment_id=:payment_id, status=:status WHERE razorpay_order_id = :razorpay_order_id")
             conn.execute(query, {

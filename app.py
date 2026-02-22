@@ -199,5 +199,5 @@ def verify_payment():
     except razorpay.errors.SignatureVerificationError:
         db.order_update_status(order_id=razorpay_order_id, status="failed")
         return jsonify({"status": "failed"}), 400
-# if __name__=="__main__":
-#     app.run(debug=True)
+if __name__=="__main__":
+    app.run(debug=True)
