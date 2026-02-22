@@ -86,3 +86,26 @@ def fetch_user(session_id):
         res = conn.execute(text("SELECT * FROM sessions WHERE session_id=:session_id"),{"session_id":session_id})
         row = res.mappings().first()
         return row
+
+#insert into order table
+def order(user_id=None, order_id=None, amount=None, payment_id=None):
+    with engine.begin() as conn:
+        if user_id!=None:
+            query = text("""
+                INSERT INTO orders (uid, razorpay_order_id, amount, status)
+                VALUES (:uid, :order_id, :amount, :status)
+            """)
+            conn.execute(query, {
+                "uid": user_id,
+                "order_id": order_id,
+                "amount": amount,
+                "status": "pending"
+            })
+        else:
+            query = text("UPDATE orders SET razorpay_payment_id=:payment_id, status=:status WHERE razorpay_order_id = :razorpay_order_id")
+            conn.execute(query, {
+                "razorpay_order_id":order_id,
+                "payment_id":payment_id,
+                "status": 'success'
+            })
+            conn.commit()

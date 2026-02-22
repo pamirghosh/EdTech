@@ -1,7 +1,16 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 import db
 import uuid
+import razorpay
+import os
+from dotenv import load_dotenv
 
+load_dotenv(override=True)
+
+key_id=os.getenv("RAZORPAY_KEY")
+key_secret=os.getenv("RAZORPAY_KEY_SECRET")
+
+client = razorpay.Client(auth=(key_id, key_secret))
 app = Flask(__name__)
 @app.route("/")
 def index():
@@ -132,12 +141,63 @@ def cart():
             for i in data:
                 total_price=total_price+i['price']
                 count+=1
-            print(total_price)
             return render_template('cart.html', data=data, total_price=total_price,count=count)
         else:
             render_template('login.html')
     except Exception as e:
         print("Error: ",e)
 
+@app.route("/create-order", methods=["POST"])
+def create_order():
+    session_id=request.cookies.get('session_id')
+    data = request.get_json()
+    print(data)
+    amount=int(float(data.get('price'))*100)
+
+    # amount = float(data["price"]) * 100  
+
+    order = client.order.create({
+        "amount": amount,
+        "currency": "INR",
+        "payment_capture": 1
+    })
+    
+    res=db.fetch_user(session_id)
+    db.order(res['user_id'],order['id'],amount)
+
+    return jsonify({
+        "order_id": order["id"],
+        "amount": amount,
+        "key_id":key_id
+    })
+
+@app.route("/verify-payment", methods=["POST"])
+def verify_payment():
+    print('verify')
+    data = request.get_json()
+
+    # Required fields from Razorpay response
+    razorpay_payment_id = data.get("razorpay_payment_id")
+    razorpay_order_id = data.get("razorpay_order_id")
+    razorpay_signature = data.get("razorpay_signature")
+
+    params_dict = {
+        'razorpay_order_id': razorpay_order_id,
+        'razorpay_payment_id': razorpay_payment_id,
+        'razorpay_signature': razorpay_signature
+    }
+
+    try:
+        
+        client.utility.verify_payment_signature(params_dict)
+        
+        print("This is for verify [payment]")
+        db.order(order_id=razorpay_order_id, payment_id=razorpay_payment_id)
+
+        return jsonify({"status": "success"}), 201
+
+    except razorpay.errors.SignatureVerificationError:
+        db.order_update_status(order_id=razorpay_order_id, status="failed")
+        return jsonify({"status": "failed"}), 400
 if __name__=="__main__":
     app.run(debug=True)
