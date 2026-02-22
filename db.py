@@ -18,13 +18,16 @@ engine = create_engine(
     connect_args={
         "ssl": {
             "ca": DB_SSL_CA
-        }
+        },
+        "connect_timeout": 5
     },
-    pool_pre_ping=True,
+    pool_size=2,          # 🔥 reduce
+    max_overflow=1,       # 🔥 reduce
+    pool_timeout=10,
     pool_recycle=280,
+    pool_pre_ping=True,
     echo=False
 )
-
 def insert_user_query(fname, lname, email, msg):
   with engine.connect() as conn:
         query = text(f"INSERT INTO user_queries (fname, lname, email, message) VALUES (:fname, :lname, :email, :msg)")
@@ -89,7 +92,7 @@ def fetch_user(session_id):
 
 #insert into order table
 def order(user_id=None, order_id=None, amount=None, payment_id=None):
-    with engine.begin() as conn:
+    with engine.connect() as conn:
         if user_id!=None:
             query = text("""
                 INSERT INTO orders (uid, razorpay_order_id, amount, status)
