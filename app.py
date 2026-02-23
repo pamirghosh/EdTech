@@ -32,6 +32,16 @@ def logout():
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": "Internal Server Error"}), 500
+@app.route("/registeration")
+def register():
+    session_id=request.cookies.get("session_id")
+    if session_id:
+        return render_template("index.html", session_id=session_id)
+    return render_template("registeration.html")
+@app.route('/validate-registration', methods=['POST'])
+def valReg():
+    pass
+
 @app.route("/login")
 def login():
     session_id=request.cookies.get("session_id")
@@ -151,7 +161,7 @@ def cart():
 def create_order():
     session_id=request.cookies.get('session_id')
     data = request.get_json()
-    print(data)
+    
     amount=int(float(data.get('price'))*100)
 
     # amount = float(data["price"]) * 100  
