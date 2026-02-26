@@ -4,6 +4,8 @@ import uuid
 import razorpay
 import os
 from dotenv import load_dotenv
+import re
+import bcrypt
 
 load_dotenv(override=True)
 
@@ -32,6 +34,7 @@ def logout():
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": "Internal Server Error"}), 500
+    
 @app.route("/registeration")
 def register():
     session_id=request.cookies.get("session_id")
@@ -40,7 +43,36 @@ def register():
     return render_template("registeration.html")
 @app.route('/validate-registration', methods=['POST'])
 def valReg():
-    pass
+    session_id=request.cookies.get("session_id")
+    if not session_id:
+        data=request.get_json()
+        fname=data['fname']
+        lname=data['lname']
+        email=data['email']
+        password=data['password']
+        cpassword=data['cpassword']
+        phone=data['phone']
+        pattern = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$'
+        if fname=='' or lname=='' or email=='' or password=='' or cpassword=='' or phone=='':
+            return jsonify({"error": "All the fields must be filled"}),400
+        elif password!=cpassword:
+            return jsonify({"error": "Password must be same as confirm password"}),400
+        elif len(password)<8:
+            return jsonify({"error": "Password must be 8 charecter long"}),400
+        elif not re.match(pattern,password):
+            return jsonify({"error": "Password must containe at least one uppercase, one lowercase, one digit and one special symbol"}),400
+        elif not phone.isdigit() or not len(phone)==10:
+            return jsonify({"error": "Invalid phone number"}),400
+        hashed_password=create_hash(password)
+        db.create_user(fname,lname,email,phone,hashed_password)
+        return jsonify({"message":"Register succesfull"}),201
+    return render_template("index.html")
+
+# create hash password
+def create_hash(password):
+    password_bytes = password.encode('utf-8')
+    hashed_password = bcrypt.hashpw(password_bytes, bcrypt.gensalt())
+    return hashed_password
 
 @app.route("/login")
 def login():
@@ -59,7 +91,13 @@ def authenticate():
         password=data['password']
         if not email or not password:
             return jsonify({"message": "All fields are required"}),400
-        session_id=db.authenticate_user(email,password)
+        
+        pass_data=db.fetch_pass(email)
+        
+        check=bcrypt.checkpw(password.encode('utf-8'),pass_data[0]['password'].encode('utf-8'))
+        if not check:
+            return jsonify({"message":"Password is incorrect."})
+        session_id=db.authenticate_user(email)
         if session_id!=-1:
             response = jsonify({'sucess':'login is sucessful'})
             response.status_code = 200
@@ -76,7 +114,7 @@ def authenticate():
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": "Internal Server Error"}), 500
-
+    
 @app.route("/our-courses")
 def courses():
     session_id=request.cookies.get("session_id")
