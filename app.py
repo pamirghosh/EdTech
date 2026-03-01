@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
+from authlib.integrations.flask_client import OAuth
 import db
 import uuid
 import razorpay
@@ -11,9 +12,24 @@ load_dotenv(override=True)
 
 key_id=os.getenv("RAZORPAY_KEY")
 key_secret=os.getenv("RAZORPAY_KEY_SECRET")
+google_client_id=os.getenv("GOOGLE_CLIENT_ID")
+google_client_secret=os.getenv("GOOGLE_CLIENT_SECRET")
 
 client = razorpay.Client(auth=(key_id, key_secret))
 app = Flask(__name__)
+app.secret_key = os.getenv("APP_SECRET_KEY")
+# Google login
+oauth = OAuth(app)
+google = oauth.register(
+    name='google',
+    client_id=google_client_id,
+    client_secret=google_client_secret,
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={
+        'scope': 'openid email profile',
+    }
+)
+
 @app.route("/")
 def index():
     session_id=request.cookies.get("session_id")
@@ -114,7 +130,37 @@ def authenticate():
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": "Internal Server Error"}), 500
+
+# google login
+@app.route("/google")
+def login_google():
+    redirect_uri = url_for('google_callback', _external=True)
+    return google.authorize_redirect(redirect_uri,prompt='consent')
+
+@app.route("/callback")
+def google_callback():
+    token = google.authorize_access_token()
+    user_info = token['userinfo']
     
+    if user_info['email_verified']==False:
+        return jsonify({'error':'Email is invalid'}),400
+    else:
+        session_id=db.authenticate_user(user_info['email'])
+        if session_id==-1:
+            db.create_user(user_info['given_name'],user_info['family_name'],user_info['email'],'xxxxxxxxxx','xxxxxxxxxx')
+            session_id=db.authenticate_user(user_info['email'])
+        
+        response = redirect(url_for('index'))
+        response.status_code = 200
+        response.set_cookie(
+            "session_id",
+            session_id,
+            httponly=True,
+            secure=False,
+            samesite="Lax"
+        )
+        return response
+
 @app.route("/our-courses")
 def courses():
     session_id=request.cookies.get("session_id")
