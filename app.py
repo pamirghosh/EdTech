@@ -62,6 +62,7 @@ def valReg():
     session_id=request.cookies.get("session_id")
     if not session_id:
         data=request.get_json()
+        print(data)
         fname=data['fname']
         lname=data['lname']
         email=data['email']

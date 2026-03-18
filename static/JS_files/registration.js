@@ -50,10 +50,12 @@ registrationBtn.addEventListener("click", (e) => {
     }))
     .then(data => {
         console.log("Success:", data);
-        window.location.href = "/login";
+        msg.classList.remove("d-none")
+        msg.innerHTML = data.error;
     })
     .catch(error => {
+        msg.classList.remove("d-none")
         msg.innerHTML = error.message;  
     });
-  }
+  }  
 });
