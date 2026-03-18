@@ -16,12 +16,14 @@ registrationBtn.addEventListener("click", (e) => {
   const password = document.querySelector(".password").value;
   const phone = document.querySelector(".phone").value;
 
-  msg.style.display = "block";
   msg.style.color = "red";
   if(fname=='' || lname=='' || email=='' || password=='' || cpassword.value=='' || phone==''){
+    msg.classList.remove("d-none")
     msg.innerHTML='You have to filled all the entries'
+
   } 
   else if(password!=cpassword.value){
+    msg.classList.remove("d-none")
     msg.innerHTML="Password and confirm password is not matched."
   }else{
     const data = {

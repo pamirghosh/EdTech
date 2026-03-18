@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 from authlib.integrations.flask_client import OAuth
 import db
-import uuid
 import razorpay
 import os
 from dotenv import load_dotenv
@@ -18,6 +17,7 @@ google_client_secret=os.getenv("GOOGLE_CLIENT_SECRET")
 client = razorpay.Client(auth=(key_id, key_secret))
 app = Flask(__name__)
 app.secret_key = os.getenv("APP_SECRET_KEY")
+
 # Google login
 oauth = OAuth(app)
 google = oauth.register(
